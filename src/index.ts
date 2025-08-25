@@ -1,7 +1,14 @@
 import "dotenv/config";
 import express from "express";
 import { runDB, closeDB, getDB } from "./db/database.js"; // .js-suffix behövs för ESM i dist
+import { randomUUID } from "crypto"; // säkert i Node
 
+// ---- Uppgift 6: interface ----
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
 
 const app = express();
 const port: number = Number(process.env.PORT) || 3000;
@@ -18,6 +25,16 @@ app.get("/dbinfo", async (_req, res) => {
   } catch (e: any) {
     res.status(500).json({ ok: false, error: e.message });
   }
+});
+
+// ---- Uppgift 6: endpoint + 201 ----
+app.post("/users", (req, res) => {
+  const { name, email } = req.body ?? {};
+  if (!name || !email) {
+    return res.status(400).json({ error: "name och email krävs" }); // viktigt: return
+  }
+  const user: User = { id: randomUUID(), name, email };
+  return res.status(201).json(user); // 201 Created
 });
 
 // UPPGIFT 4-5 här
